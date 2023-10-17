@@ -1,4 +1,5 @@
 # Create Test Videos
+
 Create Test videos at given resolutions and colors
 
 ## Usage
@@ -20,7 +21,7 @@ Download the latest built version from [releases](https://github.com/ehowe/creat
 ```
 git clone git@github.com:ehowe/create_test_videos
 cd create_test_videos
-go build
+make
 ```
 
 ### Run it

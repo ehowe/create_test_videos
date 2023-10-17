@@ -23,4 +23,4 @@ go.work
 # Private files
 colors.yml
 resolutions.yml
-create-test-videos
+create-test-videos*
