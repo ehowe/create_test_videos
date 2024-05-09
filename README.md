@@ -42,4 +42,4 @@ In practice, this looks like this:
 ./create-test-videos -c colors.yml -r resolutions.yml -o <some directory> -v
 ```
 
-If you use the sample files that I provided, this will take a _long_ time. The longer the resolutions, the longer it takes. Good luck.
+If you use the sample files that I provided, this will take a _long_ time. The larger the resolutions, the longer it takes. Good luck.
