@@ -108,6 +108,11 @@ func main() {
 	lo.ForEach(resolutions, func(resolution Resolution, _ int) {
 		resolutionName := fmt.Sprintf("%dx%d", resolution.Width, resolution.Height)
 		fullPath := filepath.Join(*outputFlag, resolutionName)
+		err := os.MkdirAll(fullPath, os.ModePerm)
+
+		if err != nil {
+			panic(err)
+		}
 
 		lo.ForEach(colors, func(color Color, index int) {
 			imageName := fmt.Sprintf("%s-%s.jpg", resolutionName, color.Name)
@@ -128,13 +133,27 @@ func main() {
 			if _, err := os.Stat(videoPath); errors.Is(err, os.ErrNotExist) {
 				fmt.Printf("creating %s video with resolution of %s from %s\n", color.Name, resolutionName, imagePath)
 
-				DryRunOrExecute(fmt.Sprintf("ffmpeg -r 1/10 -i %s -c:v libx264 -pix_fmt yuv420p %s", imagePath, videoPath))
+				DryRunOrExecute(fmt.Sprintf("ffmpeg -r 1/10 -i %s -c:v libx264 -pix_fmt yuvj420p %s", imagePath, videoPath))
 			} else {
 				if *verboseFlag {
 					fmt.Printf("Skipping %s because it already exists\n", videoPath)
 				}
 			}
+		})
+	})
 
+	lo.ForEach(resolutions, func(resolution Resolution, _ int) {
+		resolutionName := fmt.Sprintf("%dx%d", resolution.Width, resolution.Height)
+		fullPath := filepath.Join(*outputFlag, resolutionName)
+		err := os.MkdirAll(fullPath, os.ModePerm)
+
+		if err != nil {
+			panic(err)
+		}
+
+		lo.ForEach(colors, func(color Color, index int) {
+			imageName := fmt.Sprintf("%s-%s.jpg", resolutionName, color.Name)
+			imagePath := filepath.Join(fullPath, imageName)
 			var nextColor Color
 
 			if index == len(colors)-1 {
@@ -143,15 +162,13 @@ func main() {
 				nextColor = colors[index+1]
 			}
 
-			fmt.Println(index, len(colors), nextColor)
-
 			transitionName := fmt.Sprintf("%s-%s-to-%s.mov", resolutionName, color.Name, nextColor.Name)
 			transitionImagePath := filepath.Join(fullPath, fmt.Sprintf("%s-%s.jpg", resolutionName, nextColor.Name))
 			transitionPath := filepath.Join(fullPath, transitionName)
 
 			if _, err := os.Stat(transitionPath); errors.Is(err, os.ErrNotExist) {
 				if *verboseFlag {
-					fmt.Printf("creating %s transition video with resolution of %s\n", transitionName, resolutionName)
+					fmt.Printf("creating %s transition video with resolution of %s from %s and %s\n", transitionName, resolutionName, imagePath, transitionImagePath)
 				}
 
 				DryRunOrExecute(fmt.Sprintf("ffmpeg -loop 1 -t 10 -i %s -loop 1 -t 10 -i %s  -filter_complex '[0][1]xfade=transition=diagbr:duration=10' -c:v libx264 -pix_fmt yuv420p %s", imagePath, transitionImagePath, transitionPath))
